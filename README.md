@@ -1,129 +1,71 @@
-RNA-Seq Differential Expression Analysis in Galaxy
-End-to-end analysis of a published Drosophila melanogaster dataset, built entirely in Galaxy, no local compute or code required.
+# RNA_Seq_Galaxy_Bioinformatics_Project
 
-**Overview**
-This project reproduces a full RNA-seq differential expression pipeline - from raw sequencing reads to biologically interpretable results - using [Galaxy](https://usegalaxy.org), the open-source, web-based platform for reproducible computational biology.
+### My RNA-Seq Differential Expression Analysis Journey (2026)
+**Learning in Public • Hands-On Bioinformatics • India**
 
-**Biological question:** *Pasilla*, the *Drosophila* homolog of the human splicing regulators NOVA1/NOVA2, was experimentally knocked down via RNAi. Which genes change expression as a result, and what biological processes do they belong to?
+This repository documents a complete, end-to-end RNA-seq differential expression analysis. I built entirely using [Galaxy](https://usegalaxy.org), the open-source, web-based platform for computational biology - no local installation or coding required. It reproduces a real published study on *Drosophila melanogaster* (fruit fly), from raw sequencing reads all the way to biological interpretation.
 
-**Why this project:** it demonstrates the complete RNA-seq analysis skillset — quality control, read trimming, spliced alignment, gene-level quantification, differential expression statistics, and functional enrichment — using an industry-standard platform, on a real published dataset, with every step fully reproducible and shareable.
+## The Project: RNA-Seq Analysis of Pasilla Gene Knockdown
+**Status: CORE PIPELINE 100% COMPLETE** as of 17 Sep 2026
 
----
+**Biological question:** *Pasilla*, the fly counterpart of human splicing regulators NOVA1/NOVA2, was experimentally knocked down. Which genes change expression as a result, and what does that tell us biologically?
 
-## Dataset
-| **Study** | Brooks et al. (2011), *Genome Research* — *Pasilla* knockdown in *Drosophila melanogaster* |
-| **GEO accession** | [GSE18508](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE18508) |
-| **Samples used in this analysis** | 2 of 7 available replicates: `GSM461177` (untreated/control) and `GSM461180` (Pasilla-treated) |
-| **Data source** | [Zenodo record 6457007](https://zenodo.org/record/6457007) |
-| **Reference genome** | *D. melanogaster* dm6 (Galaxy built-in index) |
-| **Annotation** | `Drosophila_melanogaster.BDGP6.32.109_UCSC.gtf` |
-
-> **Note on scope:** this analysis uses 2 samples (1 per condition) to demonstrate the full pipeline end-to-end. A statistically robust differential expression analysis requires biological replicates — the complete study has 4 untreated + 3 treated replicates. Scaling this pipeline to all 7 samples is straightforward using the reusable Galaxy workflow extracted from this history (see **Reproducing this analysis** below).
-
-## Pipeline
-Raw FASTQ reads
-      │
-      ▼
-Quality control (Falco + MultiQC)
-      │
-      ▼
-Read trimming (Cutadapt)
-      │
-      ▼
-Spliced alignment (RNA STAR)
-      │
-      ▼
-Gene-level counting (featureCounts)      ← in progress
-      │
-      ▼
-Differential expression (DESeq2)         ← in progress
-      │
-      ▼
-Functional enrichment (GO / KEGG)        ← in progress
-
-### 1. Quality control
-- **Tools:** Falco (FastQC-compatible), MultiQC
-- Verified read quality, GC content, duplication levels, and adapter content across all 4 raw FASTQ files (2 samples × forward/reverse) before proceeding.
-
-### 2. Read trimming
-- **Tool:** Cutadapt
-- Parameters: minimum length = 20bp, quality-based filtering, paired-end mode (drops both mates of a pair if either read falls below the length cutoff).
-- Re-ran MultiQC on Cutadapt's reports to confirm trimming improved read quality.
-
-### 3. Alignment
-- **Tool:** RNA STAR (Galaxy version 2.7.11b+galaxy0) — a splice-aware aligner, required because RNA-seq reads span exon-exon junctions after intron removal.
-- Reference: built-in dm6 index, with the Ensembl GTF supplied for splice-junction annotation.
-- Key parameters: junction overhang length = 36 (read length − 1), MAPQ for unique mappers = 60 (recommended for modern downstream tools over STAR's legacy default of 255).
-- Run as a **paired-end collection** (not individual datasets) to ensure Galaxy correctly matches each sample's forward and reverse reads as true pairs rather than aligning them independently.
-
-### 4. Gene-level quantification *(in progress)*
-- **Tools:** RSeQC (Infer Experiment, for library strandedness) → featureCounts
-- > **TODO:** fill in once complete — strandedness result, total genes with non-zero counts.
-
-### 5. Differential expression *(in progress)*
-- **Tool:** DESeq2
-- > **TODO:** fill in once complete:
-> - Number of genes tested
-> - Number of significant DE genes (adjusted p-value < 0.05)
-> - Number up-regulated vs. down-regulated
-> - Volcano plot, PCA plot, and heatmap (add as images in `figures/`, link them here)
-
-### 6. Functional enrichment *(in progress)*
-- **Tool:** goseq (GO term enrichment), with gene-length correction
-- > **TODO:** fill in once complete — top enriched GO terms/pathways and what they suggest biologically (expect splicing/RNA-processing-related terms, given *Pasilla*'s known function).
-
-## Repository structure
-
-rnaseq-galaxy-pasilla-project/
-├── README.md                  ← this file
-├── figures/                   ← QC plots, volcano plot, PCA plot, heatmap (add as you generate them)
-├── results/
-│   ├── deseq2_results.tsv     ← full DESeq2 output table (add once generated)
-│   ├── significant_genes.tsv  ← filtered significant genes (add once generated)
-│   └── go_enrichment.tsv      ← GO/KEGG enrichment results (add once generated)
-├── workflow/
-│   └── rnaseq-pipeline.ga     ← exported Galaxy workflow (add once extracted — see below)
-└── LICENSE
-
-## Reproducing this analysis
-
-The entire analysis was performed on [usegalaxy.org](https://usegalaxy.org) using only the web interface — no local installation or coding required.
-
-1. **View the exact steps interactively:** this project's full Galaxy history is published and shareable — every tool, parameter, and intermediate file is inspectable.
-   > **TODO:** publish your history (History menu → *Share or Publish*) and paste the public link here.
-2. **Re-run it yourself:** the pipeline above was extracted as a reusable Galaxy workflow.
-   > **TODO:** extract your workflow (Workflow menu → *Extract from history*), export it as a `.ga` file, add it to `workflow/`, and link it here.
-3. **Scale to all 7 replicates:** re-run the same workflow on the remaining 5 samples from [GSE18508](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE18508) / [Zenodo 6457007](https://zenodo.org/record/6457007) for a statistically complete differential expression analysis.
-
-## Tools used
-
-| Tool | Purpose | Version |
+| Stage | Tool(s) | Status |
 |---|---|---|
-| Falco | Sequence quality control | 1.3.2+galaxy0 |
-| MultiQC | Aggregate QC reports | 1.35+galaxy4 |
-| Cutadapt | Adapter/quality trimming | — |
-| RNA STAR | Spliced read alignment | 2.7.11b+galaxy0 |
-| featureCounts | Gene-level read counting | — |
-| DESeq2 | Differential expression statistics | — |
-| goseq | GO enrichment (length-bias corrected) | — |
+| 1. Data collection | Zenodo / GEO (GSE18508) | Completed |
+| 2. Quality control | Falco, MultiQC | Completed |
+| 3. Read trimming | Cutadapt | Completed |
+| 4. Spliced alignment | RNA STAR | Completed |
+| 5. Gene quantification | featureCounts | Completed |
+| 6. Differential expression | Custom fold-change analysis (SQL/Query Tabular) | Completed |
+| 7. Visualization | ggplot2 scatterplot | Completed |
+| 8. Functional enrichment | goseq (GO/KEGG) | Attempted; not supported for this genome/ID combination on this Galaxy instance |
 
-## Key skills demonstrated
+**Total hands-on time:** ~1 full day of active troubleshooting and analysis
+**Samples analyzed:** 2 (1 untreated control, 1 Pasilla-knockdown), from a 7-sample published dataset
 
-- NGS quality control and interpretation
-- Read trimming and adapter/quality filtering
-- Splice-aware alignment and understanding of BAM file structure
-- Strandedness determination and gene-level read quantification
-- Differential expression statistics and multiple-testing correction
-- Functional/pathway enrichment analysis
-- Reproducible, shareable computational workflow design (Galaxy histories & workflows)
+### What I Learned & Built
+- Full command of the Galaxy platform: collections, paired-end data handling, workflow extraction, and history publishing
+- Hands-on experience with the complete RNA-seq pipeline: QC, trimming, splice-aware alignment, gene counting, differential expression, and enrichment
+- Real-world debugging: diagnosed and worked around a genuine statistical limitation (DESeq2 and edgeR both require biological replicates to estimate dispersion, and this pilot dataset had none) by building a defensible custom fold-change analysis using SQL-based filtering (Query Tabular) after Galaxy's classic Filter tool proved unreliable
+- Understanding of why methodological transparency matters: this README documents not just the results, but the constraints and workarounds behind them
+- Practical experience with reproducible science: this entire analysis can be re-run from a single published Galaxy history link (below)
 
-## References
+### Key Results
 
-- Brooks AN, Yang L, Duff MO, et al. (2011). Conservation of an RNA regulatory map between *Drosophila* and mammals. *Genome Research*, 21(2), 193–202.
-- Love MI, Huber W, Anders S (2014). Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. *Genome Biology*, 15, 550.
-- Ewels P, Magnusson M, Lundin S, Käller M (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. *Bioinformatics*, 32(19), 3047–3048.
-- Galaxy Training Network — [Reference-based RNA-Seq data analysis tutorial](https://training.galaxyproject.org/training-material/topics/transcriptomics/tutorials/ref-based/tutorial.html)
+- **Background gene set:** 552 genes passed low-count filtering (expressed above baseline in at least one sample)
+- **Genes with 2-fold or greater expression change:** see `significant_genes_final` in this repo for the exact count and full list
+- **Top down-regulated genes (higher in untreated / lower after Pasilla knockdown):**
+  - FBgn0039827 (log2FC approximately -4.63)
+  - FBgn0039155 (log2FC approximately -4.41)
+  - FBgn0024288 (log2FC approximately -4.19)
+  - FBgn0085359 (log2FC approximately -3.97)
+  - FBgn0264753 (log2FC approximately -3.72)
+- **Top up-regulated genes (higher in treated / higher after Pasilla knockdown):**
+  - FBti0019405 (log2FC approximately 2.45)
+  - FBgn0263986 (log2FC approximately 2.22)
+  - FBti0019466 (log2FC approximately 1.66)
+  - FBgn0265276 (log2FC approximately 1.65)
+  - FBgn0037678 (log2FC approximately 1.58)
 
-## License
+### An Honest Note on Method
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This analysis used only 1 sample per condition rather than full biological replicates. Formal statistical tools (DESeq2, edgeR) require replicates to estimate biological variability and refused to run on this design — a real, well-documented limitation, not a bug. Rather than force an inappropriate statistical test, results here are presented as **fold-change rankings** on a low-count-filtered gene set, consistent with standard practice for unreplicated pilot RNA-seq data.
+
+### Files in This Repository
+- `README.md` — this file
+- `Galaxy-Workflow-RNA-seq_Pasilla_Pipeline.ga` — the complete, reusable Galaxy workflow
+- Result tables (gene counts, fold-change values, significant gene list)
+- Fold-change scatter plot (PNG)
+
+### Reproduce This Analysis
+- **Full Galaxy history (every step, every parameter):** https://usegalaxy.org/u/ayesha_shk/h/copy-of-rna-seq-pasilla-project
+- **Reusable workflow file:** `Galaxy-Workflow-RNA-seq_Pasilla_Pipeline.ga` (in this repo)
+- **Source dataset:** [GSE18508](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE18508) / [Zenodo 6457007](https://zenodo.org/record/6457007)
+
+### What's Next
+Planning to extend this analysis to the full 7-sample dataset (4 untreated + 3 treated replicates) using the extracted Galaxy workflow, which would enable proper DESeq2/edgeR statistical testing rather than the fold-change workaround used here.
+
+More bioinformatics projects coming as I keep building hands-on skills with Galaxy and beyond.
+
+#Bioinformatics #RNAseq #Genomics #Galaxy #ComputationalBiology #LearningInPublic #WomenInSTEM #Python
